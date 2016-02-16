@@ -27,5 +27,8 @@ setup(
     packages=[
         'rabbit_bind'
     ],
-    requires=['pika']
+    package_dir={'rabbit_bind': 'rabbit_bind'},
+    install_requires=[
+        'pika'
+    ]
 )
