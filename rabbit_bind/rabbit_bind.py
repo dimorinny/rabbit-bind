@@ -9,8 +9,11 @@ class Client(object):
         self._routing_key = routing_key
         self._method = method
         self._no_ack = no_ack
+        self.sended = False
 
     def send(self, data=None):
+        self.sended = True
+
         if data:
             self._channel.basic_publish(exchange='', routing_key=self._routing_key, body=data)
 
@@ -33,6 +36,8 @@ class RabbitBinder(object):
         def _handler(ch, method, properties, body):
             client = Client(self._channel, output_queue, method, self._no_ack)
             handler(body.decode('utf-8'), client)
+            if not client.sended:
+                self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
         self._channel.basic_consume(_handler, queue=input_queue, no_ack=self._no_ack)
 
