@@ -22,10 +22,11 @@ class Client(object):
 
 
 class RabbitBinder(object):
-    def __init__(self, host, no_ack=False, durable=False, prefetch_count=0):
+    def __init__(self, host, connection_attempts=None, retry_delay=None, no_ack=False, durable=False, prefetch_count=0):
         self._no_ack = no_ack
         self._durable = durable
-        self._connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+        self._connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=host, connection_attempts=connection_attempts, retry_delay=retry_delay))
         self._channel = self._connection.channel()
         self._channel.basic_qos(prefetch_count)
 
