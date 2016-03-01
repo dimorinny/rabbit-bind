@@ -4,21 +4,14 @@ import pika
 
 
 class Client(object):
-    def __init__(self, channel, routing_key, method, no_ack):
+    def __init__(self, channel, routing_key, method):
         self._channel = channel
         self._routing_key = routing_key
         self._method = method
-        self._no_ack = no_ack
-        self.sended = False
 
     def send(self, data=None):
-        self.sended = True
-
         if data:
             self._channel.basic_publish(exchange='', routing_key=self._routing_key, body=data)
-
-        if not self._no_ack:
-            self._channel.basic_ack(delivery_tag=self._method.delivery_tag)
 
 
 class RabbitBinder(object):
@@ -35,9 +28,9 @@ class RabbitBinder(object):
         self._channel.queue_declare(queue=output_queue, durable=self._durable)
 
         def _handler(ch, method, properties, body):
-            client = Client(self._channel, output_queue, method, self._no_ack)
+            client = Client(self._channel, output_queue, method)
             handler(body.decode('utf-8'), client)
-            if not client.sended:
+            if not self._no_ack:
                 self._channel.basic_ack(delivery_tag=method.delivery_tag)
 
         self._channel.basic_consume(_handler, queue=input_queue, no_ack=self._no_ack)
