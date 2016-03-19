@@ -6,15 +6,13 @@ import pika
 
 
 class Client(object):
-    def __init__(self, channel, routing_key, output_exchange, method):
+    def __init__(self, channel, output_exchange, method):
         self._channel = channel
-        self._routing_key = routing_key
         self._output_exchange = output_exchange
         self._method = method
 
-    def send(self, data=None):
-        if data:
-            self._channel.basic_publish(exchange=self._output_exchange, routing_key=self._routing_key, body=data)
+    def send(self, data, routing_key=''):
+        self._channel.basic_publish(exchange=self._output_exchange, routing_key=routing_key, body=data)
 
 
 class RabbitBinder(object):
@@ -44,7 +42,7 @@ class RabbitBinder(object):
 
         # noinspection PyBroadException
         def _handler(ch, method, properties, body):
-            client = Client(self._channel, '', output_exchange, method)
+            client = Client(self._channel, output_exchange, method)
             try:
                 success = handler(body.decode('utf-8'), client)
 
