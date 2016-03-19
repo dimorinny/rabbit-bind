@@ -46,10 +46,10 @@ class RabbitBinder(object):
         def _handler(ch, method, properties, body):
             client = Client(self._channel, '', output_exchange, method)
             try:
-                result_flag = handler(body.decode('utf-8'), client)
+                success = handler(body.decode('utf-8'), client)
 
                 if not self._no_ack:
-                    if result_flag:
+                    if success:
                         self._channel.basic_ack(delivery_tag=method.delivery_tag)
                     else:
                         self._channel.basic_reject(delivery_tag=method.delivery_tag, requeue=self._requeue)
