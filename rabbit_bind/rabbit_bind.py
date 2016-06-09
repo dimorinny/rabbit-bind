@@ -12,7 +12,8 @@ class Client(object):
         self._output_exchange = output_exchange
         self._method = method
 
-    def send(self, data, routing_key=self._output_routing_key):
+    def send(self, data, routing_key=None):
+        routing_key = '' if routing_key is None else self._output_routing_key
         self._channel.basic_publish(exchange=self._output_exchange, routing_key=routing_key, body=data)
 
 
